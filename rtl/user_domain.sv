@@ -54,12 +54,25 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
   sbr_obi_req_t user_au_filters_obi_req;
   sbr_obi_rsp_t user_au_filters_obi_rsp;
 
+  // Audio Dummy Bus
+  sbr_obi_req_t user_au_dummy_obi_req;
+  sbr_obi_rsp_t user_au_dummy_obi_rsp;
+
   // Fanout into more readable signals
   assign user_error_obi_req                   = all_user_sbr_obi_req[UserError];
   assign all_user_sbr_obi_rsp[UserError]      = user_error_obi_rsp;
   assign user_au_filters_obi_req              = all_user_sbr_obi_req[UserAuFilters];
   assign all_user_sbr_obi_rsp[UserAuFilters]  = user_au_filters_obi_rsp;
+  assign user_au_dummy_obi_req                = all_user_sbr_obi_req[UserAuDummy];
+  assign all_user_sbr_obi_rsp[UserAuDummy]    = user_au_dummy_obi_rsp;
 
+  // Filter modules interconnect
+  logic [31:0] dummy_data_i;
+  logic        dummy_valid_i;
+  logic        dummy_ready_o;
+  logic [31:0] dummy_data_o;
+  logic        dummy_valid_o;
+  logic        dummy_ready_i;
 
   //-----------------------------------------------------------------------------------------------
   // Demultiplex to User Subordinates according to address map
@@ -130,7 +143,31 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
     .clk_i,
     .rst_ni,
     .obi_req_i  ( user_au_filters_obi_req ),
-    .obi_rsp_o  ( user_au_filters_obi_rsp )
+    .obi_rsp_o  ( user_au_filters_obi_rsp ),
+    .data_i     ( dummy_data_o            ),
+    .valid_i    ( dummy_valid_o           ),
+    .ready_o    ( dummy_ready_i           ),
+    .data_o     ( dummy_data_i            ),
+    .valid_o    ( dummy_valid_i           ),
+    .ready_i    ( dummy_ready_o           )
+  );
+
+  // Audio Dummy Module
+  user_au_dummy #(
+    .ObiCfg      ( SbrObiCfg     ),
+    .obi_req_t   ( sbr_obi_req_t ),
+    .obi_rsp_t   ( sbr_obi_rsp_t )
+  ) i_au_dummy (
+    .clk_i,
+    .rst_ni,
+    .obi_req_i  ( user_au_dummy_obi_req ),
+    .obi_rsp_o  ( user_au_dummy_obi_rsp ),
+    .data_i     ( dummy_data_i            ),
+    .valid_i    ( dummy_valid_i           ),
+    .ready_o    ( dummy_ready_o           ),
+    .data_o     ( dummy_data_o            ),
+    .valid_o    ( dummy_valid_o           ),
+    .ready_i    ( dummy_ready_i           )
   );
 
 endmodule
