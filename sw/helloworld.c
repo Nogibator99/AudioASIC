@@ -60,7 +60,7 @@ int main() {
     // uart_write_flush();
 
     // Test filters
-    uint32_t decay = 0x00007777;
+    uint32_t decay = 99/100;
 
     // Reset
     *reg32(USER_AU_FILTERS_BASE_ADDR, 0x0) = 0x0;
@@ -71,6 +71,8 @@ int main() {
     *reg32(USER_AU_FILTERS_BASE_ADDR, 0x4) = decay;
     printf("Decay after set is: 0x%x\n", *reg32(USER_AU_FILTERS_BASE_ADDR, 0x8));
     uart_write_flush();
+
+    printf("Decay in C is: 0x%x\n", decay);
 
     // using the timer
     printf("Tick\n");

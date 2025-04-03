@@ -439,11 +439,14 @@ module tb_croc_soc #(
 
     logic [31:0] tb_data;
     logic [31:0] out_sample;
-    logic signed [15:0] in_sample;
+    logic [15:0] in_sample;
     logic [7:0] wav_header [0:43];
     int audio_in_file;
     int audio_out_file;
     int num_samples;
+
+    string audio_in_file_name = "../audio_test/in_100ms.wav";
+    string audio_out_file_name = "../audio_test/out.wav";
 
     initial begin
         $timeformat(-9, 0, "ns", 12); // 1: scale (ns=-9), 2: decimals, 3: suffix, 4: print-field width
@@ -480,49 +483,54 @@ module tb_croc_soc #(
         $display("@%t | [CORE] Wait for end of code...", $time);
         jtag_wait_for_eoc(tb_data);
 
-        //$display("@%t | [AUDIO] Writing to dummy...", $time);
-        //jtag_write_reg32(user_pkg::UserAuDummyAddrOffset, 32'h0000_2288, 1'b0);
-
-        //repeat(50) @(posedge clk);
-
-        //jtag_read_reg32(user_pkg::UserAuDummyAddrOffset + 4, audio_read_data, 1'b1);
-        //$display("@%t | [AUDIO] Read from dummy: 0x%h", $time, audio_read_data);
-
-        
 
         //////////////////
         //  Audio test  //
         //////////////////
-        audio_in_file =  $fopen("../audio_test/in.wav",  "rb");
-        audio_out_file = $fopen("../audio_test/out.wav", "wb");
+
+        // Open in and out files
+        audio_in_file =  $fopen(audio_in_file_name,  "rb");
+        audio_out_file = $fopen(audio_out_file_name, "wb");
         if (audio_in_file == 0) begin
-            $fatal(1, "Error: Failed to open file %s", audio_in_file);
+            $fatal(1, "Error: Failed to open file %s", audio_in_file_name);
         end else if (audio_out_file == 0) begin
-            $fatal(1, "Error: Failed to open file %s", audio_out_file);
+            $fatal(1, "Error: Failed to open file %s", audio_out_file_name);
         end else begin
+
+            // Read header
             $fread(wav_header, audio_in_file);
-            $fwrite(audio_out_file, wav_header);
+
+            // Write header
+            for(int i = 0; i < 44; i++) begin
+                $fwrite(audio_out_file, "%c", wav_header[i]);
+            end
 
             num_samples = 0;
             while (!$feof(audio_in_file)) begin
-                int lsb, msb;
+                logic [7:0] lsb, msb;
                 lsb = $fgetc(audio_in_file);
                 msb = $fgetc(audio_in_file);
+                //$display("LSB: 0x%h\nMSB: 0x%h", lsb, msb);
                 if($feof(audio_in_file)) break;
 
                 in_sample = {msb, lsb};
+                //$display("in_sample: 0x%h", in_sample);
                 num_samples++;
 
-                jtag_write_reg32(user_pkg::UserAuDummyAddrOffset, in_sample, 1'b0);
-                repeat(10) @(posedge clk);
-                jtag_read_reg32(user_pkg::UserAuDummyAddrOffset + 4, out_sample, 1'b1);
+                // Apply sample to dummy
+                jtag_write_reg32(user_pkg::UserAuDummyAddrOffset, in_sample, 1'b0, 0);
 
+                // Read output from dummy
+                jtag_read_reg32(user_pkg::UserAuDummyAddrOffset + 4, out_sample, 0);
+                
+                // Write output
                 $fwrite(audio_out_file, "%c%c", out_sample[7:0], out_sample[15:8]);
             end
 
             $fclose(audio_in_file);
             $fclose(audio_out_file);
             $display("Processed %d samples", num_samples);
+            $display("Out file name: %s", audio_out_file_name);
         end
 
         // finish simulation
