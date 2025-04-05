@@ -2,3 +2,5 @@
 tmp
 *.vcd
 audio_test/out.wav
+audio_test/Generator_cgxe.mexa64
+audio_test/slprj/
