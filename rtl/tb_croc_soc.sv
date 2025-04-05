@@ -438,14 +438,14 @@ module tb_croc_soc #(
     /////////////////
 
     logic [31:0] tb_data;
-    logic [31:0] out_sample;
+    logic [15:0] out_sample;
     logic [15:0] in_sample;
     logic [7:0] wav_header [0:43];
     int audio_in_file;
     int audio_out_file;
     int num_samples;
 
-    string audio_in_file_name = "../audio_test/in_100ms.wav";
+    string audio_in_file_name = "../audio_test/in_three_tones_10ms.wav";
     string audio_out_file_name = "../audio_test/out.wav";
 
     initial begin

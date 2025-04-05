@@ -75,7 +75,7 @@ module user_au_dummy #(
       case(addr_q[2])
         1'd0: begin // write new sample value to effect
           if(we_q) begin
-            data_o_to_fx_d = wdata_q;
+            data_o_to_fx_d = {{32{wdata_q[15]}}, wdata_q[15:0]};
             valid_o_to_fx_d = 1;
           end else begin
             rsp_err = '1;
@@ -85,7 +85,7 @@ module user_au_dummy #(
         if(we_q) begin
             rsp_err = '1;
           end else begin
-            rsp_data = data_i_from_fx_q;
+            rsp_data = data_i_from_fx_q[15:0];
           end
         end
         default: rsp_data = 32'hffff_ffff;

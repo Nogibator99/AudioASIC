@@ -21,18 +21,18 @@ module user_au_filters #(
 
 
   /// Input audio sample
-  input  logic [31:0] data_i,
+  input  logic signed [31:0] data_i,
   /// New input sample is valid
-  input  logic        valid_i,
+  input  logic               valid_i,
   /// We're ready to receive new sample
-  output logic        ready_o,
+  output logic               ready_o,
 
   /// Output audio sample
-  output logic [31:0] data_o,
+  output logic signed [31:0] data_o,
   /// New output sample is valid
-  output logic        valid_o,
+  output logic               valid_o,
   /// Next module is ready to receive new sample
-  input  logic        ready_i
+  input  logic               ready_i
 );
 
   // Request fields
@@ -43,13 +43,13 @@ module user_au_filters #(
   logic [ObiCfg.DataWidth-1:0] wdata_d, wdata_q;
 
   // Current filter coefficient
-  logic [31:0] decay_d, decay_q;
+  logic signed [31:0] decay_d, decay_q;
 
   // State of the module
   logic busy_d, busy_q;
   
   // Data samples
-  logic [31:0] curr_data_d, curr_data_q, prev_out_d, prev_out_q;
+  logic signed [31:0] curr_data_d, curr_data_q, prev_out_d, prev_out_q;
 
   // Signals used to create the response
   logic [ObiCfg.DataWidth-1:0] rsp_data; // Data field of the obi response
@@ -116,7 +116,7 @@ module user_au_filters #(
       // Ready to send data
       ready_o = 0;
       valid_o = 1;
-      data_o = curr_data_q + decay_q * (prev_out_q - curr_data_q);
+      data_o = curr_data_q + ((decay_q * (prev_out_q - curr_data_q)) >>> 10);
       if(ready_i) begin 
         // Send data
         busy_d = 0;

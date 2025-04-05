@@ -59,20 +59,12 @@ int main() {
     // printf("Result: 0x%x, Cycles: 0x%x\n", res, end - start);
     // uart_write_flush();
 
-    // Test filters
-    uint32_t decay = 99/100;
+    // Write some filters coefficients
+    uint32_t decay = 512; // 0 - 1024
 
-    // Reset
-    *reg32(USER_AU_FILTERS_BASE_ADDR, 0x0) = 0x0;
-    printf("Decay after reset is: %x\n", *reg32(USER_AU_FILTERS_BASE_ADDR, 0x8));
-    uart_write_flush();
-
-    // Set
     *reg32(USER_AU_FILTERS_BASE_ADDR, 0x4) = decay;
-    printf("Decay after set is: 0x%x\n", *reg32(USER_AU_FILTERS_BASE_ADDR, 0x8));
+    printf("Decay is set to: 0x%x\n", *reg32(USER_AU_FILTERS_BASE_ADDR, 0x8));
     uart_write_flush();
-
-    printf("Decay in C is: 0x%x\n", decay);
 
     // using the timer
     printf("Tick\n");
