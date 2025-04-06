@@ -1,6 +1,7 @@
 .bender
-tmp
 *.vcd
-audio_test/out.wav
-Generator_cgxe.mexa64
+*.mexa64
+*.autosave
+tmp
 slprj/
+audio_test/out.wav

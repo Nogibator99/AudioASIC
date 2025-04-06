@@ -50,29 +50,29 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
   sbr_obi_req_t user_error_obi_req;
   sbr_obi_rsp_t user_error_obi_rsp;
 
-  // Audio Filters Bus
-  sbr_obi_req_t user_au_filters_obi_req;
-  sbr_obi_rsp_t user_au_filters_obi_rsp;
+  // LPF Cascade Bus
+  sbr_obi_req_t user_au_LPF_cascade_obi_req;
+  sbr_obi_rsp_t user_au_LPF_cascade_obi_rsp;
 
-  // Audio Dummy Bus
-  sbr_obi_req_t user_au_dummy_obi_req;
-  sbr_obi_rsp_t user_au_dummy_obi_rsp;
+  // Audio Interface Bus
+  sbr_obi_req_t user_au_audio_interface_obi_req;
+  sbr_obi_rsp_t user_au_audio_interface_obi_rsp;
 
   // Fanout into more readable signals
-  assign user_error_obi_req                   = all_user_sbr_obi_req[UserError];
-  assign all_user_sbr_obi_rsp[UserError]      = user_error_obi_rsp;
-  assign user_au_filters_obi_req              = all_user_sbr_obi_req[UserAuFilters];
-  assign all_user_sbr_obi_rsp[UserAuFilters]  = user_au_filters_obi_rsp;
-  assign user_au_dummy_obi_req                = all_user_sbr_obi_req[UserAuDummy];
-  assign all_user_sbr_obi_rsp[UserAuDummy]    = user_au_dummy_obi_rsp;
+  assign user_error_obi_req                          = all_user_sbr_obi_req[UserError];
+  assign all_user_sbr_obi_rsp[UserError]             = user_error_obi_rsp;
+  assign user_au_LPF_cascade_obi_req                 = all_user_sbr_obi_req[UserAuLPFCascade];
+  assign all_user_sbr_obi_rsp[UserAuLPFCascade]      = user_au_LPF_cascade_obi_rsp;
+  assign user_au_audio_interface_obi_req             = all_user_sbr_obi_req[UserAuAudioInterface];
+  assign all_user_sbr_obi_rsp[UserAuAudioInterface]  = user_au_audio_interface_obi_rsp;
 
   // Filter modules interconnect
-  logic [31:0] dummy_data_i;
-  logic        dummy_valid_i;
-  logic        dummy_ready_o;
-  logic [31:0] dummy_data_o;
-  logic        dummy_valid_o;
-  logic        dummy_ready_i;
+  logic [31:0] audio_interface_data_i;
+  logic        audio_interface_valid_i;
+  logic        audio_interface_ready_o;
+  logic [31:0] audio_interface_data_o;
+  logic        audio_interface_valid_o;
+  logic        audio_interface_ready_i;
 
   //-----------------------------------------------------------------------------------------------
   // Demultiplex to User Subordinates according to address map
@@ -134,40 +134,43 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
     .obi_rsp_o  ( user_error_obi_rsp )
   );
 
-  // Filters Module
-  user_au_filters #(
+  // Audio Interface Module
+  user_au_audio_interface #(
     .ObiCfg      ( SbrObiCfg     ),
     .obi_req_t   ( sbr_obi_req_t ),
     .obi_rsp_t   ( sbr_obi_rsp_t )
-  ) i_au_filters (
+  ) i_au_interface (
     .clk_i,
     .rst_ni,
-    .obi_req_i  ( user_au_filters_obi_req ),
-    .obi_rsp_o  ( user_au_filters_obi_rsp ),
-    .data_i     ( dummy_data_o            ),
-    .valid_i    ( dummy_valid_o           ),
-    .ready_o    ( dummy_ready_i           ),
-    .data_o     ( dummy_data_i            ),
-    .valid_o    ( dummy_valid_i           ),
-    .ready_i    ( dummy_ready_o           )
+    .obi_req_i  ( user_au_audio_interface_obi_req   ),
+    .obi_rsp_o  ( user_au_audio_interface_obi_rsp   ),
+    .data_i     ( audio_interface_data_i            ),
+    .valid_i    ( audio_interface_valid_i           ),
+    .ready_o    ( audio_interface_ready_o           ),
+    .data_o     ( audio_interface_data_o            ),
+    .valid_o    ( audio_interface_valid_o           ),
+    .ready_i    ( audio_interface_ready_i           )
   );
 
-  // Audio Dummy Module
-  user_au_dummy #(
+  // LPF Cascade Module
+  user_au_LPF_cascade #(
     .ObiCfg      ( SbrObiCfg     ),
     .obi_req_t   ( sbr_obi_req_t ),
-    .obi_rsp_t   ( sbr_obi_rsp_t )
-  ) i_au_dummy (
+    .obi_rsp_t   ( sbr_obi_rsp_t ),
+    .NUM_STAGES  ( 8             )
+  ) i_au_LPF_cascade (
     .clk_i,
     .rst_ni,
-    .obi_req_i  ( user_au_dummy_obi_req ),
-    .obi_rsp_o  ( user_au_dummy_obi_rsp ),
-    .data_i     ( dummy_data_i            ),
-    .valid_i    ( dummy_valid_i           ),
-    .ready_o    ( dummy_ready_o           ),
-    .data_o     ( dummy_data_o            ),
-    .valid_o    ( dummy_valid_o           ),
-    .ready_i    ( dummy_ready_i           )
+    .obi_req_i  ( user_au_LPF_cascade_obi_req ),
+    .obi_rsp_o  ( user_au_LPF_cascade_obi_rsp ),
+    .data_i     ( audio_interface_data_o            ),
+    .valid_i    ( audio_interface_valid_o           ),
+    .ready_o    ( audio_interface_ready_i           ),
+    .data_o     ( audio_interface_data_i            ),
+    .valid_o    ( audio_interface_valid_i           ),
+    .ready_i    ( audio_interface_ready_o           )
   );
+
+  
 
 endmodule

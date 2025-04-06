@@ -444,8 +444,9 @@ module tb_croc_soc #(
     int audio_in_file;
     int audio_out_file;
     int num_samples;
+    int filter_decay;
 
-    string audio_in_file_name = "../audio_test/in_three_tones_10ms.wav";
+    string audio_in_file_name = "../audio_test/in_white_noise_10ms.wav";
     string audio_out_file_name = "../audio_test/out.wav";
 
     initial begin
@@ -518,10 +519,10 @@ module tb_croc_soc #(
                 num_samples++;
 
                 // Apply sample to dummy
-                jtag_write_reg32(user_pkg::UserAuDummyAddrOffset, in_sample, 1'b0, 0);
+                jtag_write_reg32(user_pkg::UserAuAudioInterfaceAddrOffset, in_sample, 1'b0, 0);
 
                 // Read output from dummy
-                jtag_read_reg32(user_pkg::UserAuDummyAddrOffset + 4, out_sample, 0);
+                jtag_read_reg32(user_pkg::UserAuAudioInterfaceAddrOffset + 4, out_sample, 0);
                 
                 // Write output
                 $fwrite(audio_out_file, "%c%c", out_sample[7:0], out_sample[15:8]);
@@ -530,6 +531,11 @@ module tb_croc_soc #(
             $fclose(audio_in_file);
             $fclose(audio_out_file);
             $display("Processed %d samples", num_samples);
+
+            jtag_read_reg32(user_pkg::UserAuLPFCascadeAddrOffset + 4, filter_decay, 0);
+            $display("Decay was: %d", filter_decay);
+
+            $display("In file name: %s", audio_in_file_name);
             $display("Out file name: %s", audio_out_file_name);
         end
 
