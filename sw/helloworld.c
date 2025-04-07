@@ -60,11 +60,13 @@ int main() {
     // uart_write_flush();
 
     // Write some filters coefficients
-    uint32_t decay = 1000; // 0 - 1024
+    int LPF_decay = 512;    // 0 - 1024
+    int HPF_decay = 512;   // 0 - 1024
 
-    *reg32(USER_AU_LPF_CASCADE_BASE_ADDR, 0x4) = decay;
-    printf("Decay is set to: 0x%x\n", *reg32(USER_AU_LPF_CASCADE_BASE_ADDR, 0x4));
-    printf("Filter order is set to: 0x%x\n", *reg32(USER_AU_LPF_CASCADE_BASE_ADDR, 0x8));
+    *reg32(USER_AU_FILTERS_CASCADE_BASE_ADDR, 0x4) = LPF_decay;
+    *reg32(USER_AU_FILTERS_CASCADE_BASE_ADDR, 0x8) = 2048 - HPF_decay;
+    //printf("LPF decay is set to: 0x%x\n", *reg32(USER_AU_FILTERS_CASCADE_BASE_ADDR, 0x4));
+    //printf("HPF decay is set to: 0x%x\n", *reg32(USER_AU_FILTERS_CASCADE_BASE_ADDR, 0x8));
     uart_write_flush();
 
     // using the timer

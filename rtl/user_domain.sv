@@ -50,9 +50,9 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
   sbr_obi_req_t user_error_obi_req;
   sbr_obi_rsp_t user_error_obi_rsp;
 
-  // LPF Cascade Bus
-  sbr_obi_req_t user_au_LPF_cascade_obi_req;
-  sbr_obi_rsp_t user_au_LPF_cascade_obi_rsp;
+  // LPF and HPF Cascade Bus
+  sbr_obi_req_t user_au_filters_cascade_obi_req;
+  sbr_obi_rsp_t user_au_filters_cascade_obi_rsp;
 
   // Audio Interface Bus
   sbr_obi_req_t user_au_audio_interface_obi_req;
@@ -61,8 +61,8 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
   // Fanout into more readable signals
   assign user_error_obi_req                          = all_user_sbr_obi_req[UserError];
   assign all_user_sbr_obi_rsp[UserError]             = user_error_obi_rsp;
-  assign user_au_LPF_cascade_obi_req                 = all_user_sbr_obi_req[UserAuLPFCascade];
-  assign all_user_sbr_obi_rsp[UserAuLPFCascade]      = user_au_LPF_cascade_obi_rsp;
+  assign user_au_filters_cascade_obi_req             = all_user_sbr_obi_req[UserAuFiltersCascade];
+  assign all_user_sbr_obi_rsp[UserAuFiltersCascade]  = user_au_filters_cascade_obi_rsp;
   assign user_au_audio_interface_obi_req             = all_user_sbr_obi_req[UserAuAudioInterface];
   assign all_user_sbr_obi_rsp[UserAuAudioInterface]  = user_au_audio_interface_obi_rsp;
 
@@ -73,6 +73,10 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
   logic [31:0] audio_interface_data_o;
   logic        audio_interface_valid_o;
   logic        audio_interface_ready_i;
+
+  logic [31:0] from_LPF_data_o;
+  logic        from_LPF_valid_o;
+  logic        to_LPF_ready_i;
 
   //-----------------------------------------------------------------------------------------------
   // Demultiplex to User Subordinates according to address map
@@ -157,18 +161,37 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
     .ObiCfg      ( SbrObiCfg     ),
     .obi_req_t   ( sbr_obi_req_t ),
     .obi_rsp_t   ( sbr_obi_rsp_t ),
-    .NUM_STAGES  ( 8             )
+    .NUM_STAGES  ( 1             )
   ) i_au_LPF_cascade (
     .clk_i,
     .rst_ni,
-    .obi_req_i  ( user_au_LPF_cascade_obi_req ),
-    .obi_rsp_o  ( user_au_LPF_cascade_obi_rsp ),
-    .data_i     ( audio_interface_data_o            ),
-    .valid_i    ( audio_interface_valid_o           ),
-    .ready_o    ( audio_interface_ready_i           ),
-    .data_o     ( audio_interface_data_i            ),
-    .valid_o    ( audio_interface_valid_i           ),
-    .ready_i    ( audio_interface_ready_o           )
+    .obi_req_i  ( user_au_filters_cascade_obi_req ),
+    .obi_rsp_o  ( user_au_filters_cascade_obi_rsp ),
+    .data_i     ( audio_interface_data_o          ),
+    .valid_i    ( audio_interface_valid_o         ),
+    .ready_o    ( audio_interface_ready_i         ),
+    .data_o     ( from_LPF_data_o                 ),
+    .valid_o    ( from_LPF_valid_o                ),
+    .ready_i    ( to_LPF_ready_i                  )
+  );
+
+  // HPF Cascade Module
+  user_au_HPF_cascade #(
+    .ObiCfg      ( SbrObiCfg     ),
+    .obi_req_t   ( sbr_obi_req_t ),
+    .obi_rsp_t   ( sbr_obi_rsp_t ),
+    .NUM_STAGES  ( 1             )
+  ) i_au_HPF_cascade (
+    .clk_i,
+    .rst_ni,
+    .obi_req_i  ( user_au_filters_cascade_obi_req ),
+    .obi_rsp_o  ( user_au_filters_cascade_obi_rsp ),
+    .data_i     ( from_LPF_data_o                 ),
+    .valid_i    ( from_LPF_valid_o                ),
+    .ready_o    ( to_LPF_ready_i                  ),
+    .data_o     ( audio_interface_data_i          ),
+    .valid_o    ( audio_interface_valid_i         ),
+    .ready_i    ( audio_interface_ready_o         )
   );
 
   

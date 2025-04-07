@@ -46,8 +46,8 @@ module user_au_audio_interface #(
   logic [ObiCfg.DataWidth-1:0] rsp_data; // Data field of the obi response
   logic rsp_err; // Error field of the obi response
 
-  logic [31:0] data_i_from_fx_d, data_i_from_fx_q;
-  logic [31:0] data_o_to_fx_d, data_o_to_fx_q;
+  logic signed [31:0] data_i_from_fx_d, data_i_from_fx_q;
+  logic signed [31:0] data_o_to_fx_d, data_o_to_fx_q;
   logic        valid_o_to_fx_d, valid_o_to_fx_q;
 
   `FF(req_q, req_d, '0);
@@ -98,7 +98,10 @@ module user_au_audio_interface #(
         if(we_q) begin
             rsp_err = '1;
           end else begin
-            rsp_data = data_i_from_fx_q[15:0];
+            // Clamp to 16 bits
+            rsp_data = data_i_from_fx_q > 32'sd32767 ? 16'sd32767 : 
+            (data_i_from_fx_q < -32'sd32768 ? -16'sd32768 : 
+            data_i_from_fx_q[15:0]);
           end
         end
         default: rsp_data = 32'hffff_ffff;

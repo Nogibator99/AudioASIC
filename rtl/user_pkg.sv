@@ -26,8 +26,8 @@ package user_pkg;
   localparam bit [31:0] UserRomAddrOffset               = croc_pkg::UserBaseAddr; // 32'h2000_0000;
   localparam bit [31:0] UserRomAddrRange                = 32'h0000_1000;          // every subordinate has at least 4KB
 
-  localparam bit [31:0] UserAuLPFCascadeAddrOffset      = 32'h2000_1000;
-  localparam bit [31:0] UserAuLPFCascadeAddrRange       = 32'h0000_1000;    // 4KB
+  localparam bit [31:0] UserAuFiltersCascadeAddrOffset  = 32'h2000_1000;
+  localparam bit [31:0] UserAuFiltersCascadeAddrRange   = 32'h0000_1000;    // 4KB
 
   // Only for testing
   localparam bit [31:0] UserAuAudioInterfaceAddrOffset  = 32'h3000_1000;
@@ -41,13 +41,13 @@ package user_pkg;
   typedef enum int {
     UserError = 0,
     UserAuAudioInterface = 1,
-    UserAuLPFCascade = 2
+    UserAuFiltersCascade = 2
   } user_demux_outputs_e;
 
   // Address rules given to address decoder
   localparam croc_pkg::addr_map_rule_t [NumDemuxSbrRules-1:0] user_addr_map = '{
     '{ idx:UserAuAudioInterface, start_addr: UserAuAudioInterfaceAddrOffset, end_addr: UserAuAudioInterfaceAddrOffset + UserAuAudioInterfaceAddrRange},
-    '{ idx:UserAuLPFCascade, start_addr: UserAuLPFCascadeAddrOffset, end_addr: UserAuLPFCascadeAddrOffset + UserAuLPFCascadeAddrRange}
+    '{ idx:UserAuFiltersCascade, start_addr: UserAuFiltersCascadeAddrOffset, end_addr: UserAuFiltersCascadeAddrOffset + UserAuFiltersCascadeAddrRange}
   };
 
 endpackage

@@ -1,7 +1,7 @@
 // gives us the `FF(...) macro making it easy to have properly defined flip-flops
 `include "common_cells/registers.svh"
 
-module user_au_LPF_stage #(
+module user_au_HPF_stage #(
   /// The OBI configuration for all ports.
   parameter obi_pkg::obi_cfg_t           ObiCfg      = obi_pkg::ObiDefaultConfig,
   /// The request struct.
@@ -49,7 +49,9 @@ module user_au_LPF_stage #(
   logic busy_d, busy_q;
   
   // Data samples
-  logic signed [31:0] curr_data_d, curr_data_q, prev_out_d, prev_out_q;
+  logic signed [31:0] curr_data_d, curr_data_q;
+  logic signed [31:0] prev_data_d, prev_data_q;
+  logic signed [31:0] prev_out_d, prev_out_q;
 
   // Signals used to create the response
   logic [ObiCfg.DataWidth-1:0] rsp_data; // Data field of the obi response
@@ -63,6 +65,7 @@ module user_au_LPF_stage #(
   `FF(decay_q, decay_d, '0);
   `FF(busy_q, busy_d , '0);
   `FF(curr_data_q, curr_data_d , '0);
+  `FF(prev_data_q, prev_data_d , '0);
   `FF(prev_out_q, prev_out_d , '0);
 
   assign req_d = obi_req_i.req;
@@ -86,7 +89,7 @@ module user_au_LPF_stage #(
             rsp_err = '1;
           end
         end
-        2'd1: begin // set/read decay value
+        2'd2: begin // set/read decay value
           if(we_q) begin
             decay_d = wdata_q;
           end else begin
@@ -102,6 +105,7 @@ module user_au_LPF_stage #(
   always_comb begin
     busy_d = busy_q;
     curr_data_d = curr_data_q;
+    prev_data_d = prev_data_q;
     prev_out_d = prev_out_q;
     data_o = '0;
 
@@ -109,11 +113,12 @@ module user_au_LPF_stage #(
       // Ready to send data
       ready_o = 0;
       valid_o = 1;
-      data_o = curr_data_q + ((decay_q * (prev_out_q - curr_data_q)) >>> 10);
+      data_o =  ((decay_q * (curr_data_q - prev_data_q + (prev_out_q <<< 1))) >>> 11) - prev_out_q;
       if(ready_i) begin 
         // Send data
         busy_d = 0;
         prev_out_d = data_o;
+        prev_data_d = curr_data_q;
       end
     end else begin
       // Ready to receive new data

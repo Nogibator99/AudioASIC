@@ -48,6 +48,8 @@ sources:
       # add your design files with modules here
       - rtl/user_domain/user_au_LPF_stage.sv
       - rtl/user_domain/user_au_LPF_cascade.sv
+      - rtl/user_domain/user_au_HPF_stage.sv
+      - rtl/user_domain/user_au_HPF_cascade.sv
       - rtl/user_domain/user_au_audio_interface.sv
       # Level 3
       - rtl/croc_soc.sv

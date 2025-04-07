@@ -444,7 +444,8 @@ module tb_croc_soc #(
     int audio_in_file;
     int audio_out_file;
     int num_samples;
-    int filter_decay;
+    int LPF_filter_decay;
+    int HPF_filter_decay;
 
     string audio_in_file_name = "../audio_test/in_white_noise_10ms.wav";
     string audio_out_file_name = "../audio_test/out.wav";
@@ -518,10 +519,10 @@ module tb_croc_soc #(
                 //$display("in_sample: 0x%h", in_sample);
                 num_samples++;
 
-                // Apply sample to dummy
+                // Apply sample to audio interface
                 jtag_write_reg32(user_pkg::UserAuAudioInterfaceAddrOffset, in_sample, 1'b0, 0);
 
-                // Read output from dummy
+                // Read output from audio interface
                 jtag_read_reg32(user_pkg::UserAuAudioInterfaceAddrOffset + 4, out_sample, 0);
                 
                 // Write output
@@ -532,8 +533,9 @@ module tb_croc_soc #(
             $fclose(audio_out_file);
             $display("Processed %d samples", num_samples);
 
-            jtag_read_reg32(user_pkg::UserAuLPFCascadeAddrOffset + 4, filter_decay, 0);
-            $display("Decay was: %d", filter_decay);
+            //jtag_read_reg32(user_pkg::UserAuFiltersCascadeAddrOffset + 4, LPF_filter_decay, 0);
+            //jtag_read_reg32(user_pkg::UserAuFiltersCascadeAddrOffset + 8, HPF_filter_decay, 0);
+            //$display("LPF decay was: %d\nHPF decay was: %d", LPF_filter_decay, HPF_filter_decay);
 
             $display("In file name: %s", audio_in_file_name);
             $display("Out file name: %s", audio_out_file_name);
