@@ -447,8 +447,8 @@ module tb_croc_soc #(
     int LPF_filter_decay;
     int HPF_filter_decay;
 
-    string audio_in_file_name = "../audio_test/in_white_noise_10ms.wav";
-    string audio_out_file_name = "../audio_test/out.wav";
+    string audio_in_file_name = "../audio_test/in_10s.wav";
+    string audio_out_file_name = "../audio_test/out_10s_BPF.wav";
 
     initial begin
         $timeformat(-9, 0, "ns", 12); // 1: scale (ns=-9), 2: decimals, 3: suffix, 4: print-field width

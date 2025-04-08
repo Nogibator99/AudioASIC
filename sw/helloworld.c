@@ -61,7 +61,7 @@ int main() {
 
     // Write some filters coefficients
     int LPF_decay = 512;    // 0 - 1024
-    int HPF_decay = 512;   // 0 - 1024
+    int HPF_decay = 100;    // 0 - 1024
 
     *reg32(USER_AU_FILTERS_CASCADE_BASE_ADDR, 0x4) = LPF_decay;
     *reg32(USER_AU_FILTERS_CASCADE_BASE_ADDR, 0x8) = 2048 - HPF_decay;

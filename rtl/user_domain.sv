@@ -161,7 +161,7 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
     .ObiCfg      ( SbrObiCfg     ),
     .obi_req_t   ( sbr_obi_req_t ),
     .obi_rsp_t   ( sbr_obi_rsp_t ),
-    .NUM_STAGES  ( 1             )
+    .NUM_STAGES  ( 2             )
   ) i_au_LPF_cascade (
     .clk_i,
     .rst_ni,
@@ -180,7 +180,7 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
     .ObiCfg      ( SbrObiCfg     ),
     .obi_req_t   ( sbr_obi_req_t ),
     .obi_rsp_t   ( sbr_obi_rsp_t ),
-    .NUM_STAGES  ( 1             )
+    .NUM_STAGES  ( 2             )
   ) i_au_HPF_cascade (
     .clk_i,
     .rst_ni,
