@@ -19,12 +19,31 @@ SECTIONS
 {
   /DISCARD/ : { *(.riscv.attributes) *(.comment) }
 
+  /* Code */
   .text._start 0x10000000 : { *(.text._start) } >SRAM
   .text : { *(.text) *(.text.*) } >SRAM
-  .misc : { *(.sdata) *(.*) } >SRAM
-  
-  __global_pointer$ = ADDR(.misc)  + SIZEOF(.misc) / 2; 
+
+  /* Read-only data (e.g., const char[]) */
+  .rodata : { *(.rodata) *(.rodata.*) } >SRAM
+
+  /* Initialized data */
+  .data : { *(.data) *(.data.*) } >SRAM
+
+  /* Small initialized data */
+  .sdata : { *(.sdata) *(.sdata.*) } >SRAM
+
+  /* Small uninitialized data */
+  .sbss : { *(.sbss) *(.sbss.*) } >SRAM
+
+  /* Uninitialized data (zeroed at startup) */
+  .bss : { *(.bss) *(.bss.*) *(COMMON) } >SRAM
+
+  /* Global pointer in middle of sdata for GP-relative access */
+  __global_pointer$ = ADDR(.sdata) + 0x800;
+
+  /* Stack pointer at top of SRAM */
   __stack_pointer$  = ORIGIN(SRAM) + LENGTH(SRAM);
 
+  /* Optional symbol for peripherals or debug */
   status  = 0x03000008;
 }

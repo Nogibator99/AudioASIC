@@ -447,8 +447,8 @@ module tb_croc_soc #(
     int LPF_filter_decay;
     int HPF_filter_decay;
 
-    string audio_in_file_name = "../audio_test/in_10s.wav";
-    string audio_out_file_name = "../audio_test/out_10s_BPF.wav";
+    string audio_in_file_name = "../audio_test/in_100ms.wav";
+    string audio_out_file_name = "../audio_test/out_100ms.wav";
 
     initial begin
         $timeformat(-9, 0, "ns", 12); // 1: scale (ns=-9), 2: decimals, 3: suffix, 4: print-field width
@@ -491,55 +491,55 @@ module tb_croc_soc #(
         //////////////////
 
         // Open in and out files
-        audio_in_file =  $fopen(audio_in_file_name,  "rb");
-        audio_out_file = $fopen(audio_out_file_name, "wb");
-        if (audio_in_file == 0) begin
-            $fatal(1, "Error: Failed to open file %s", audio_in_file_name);
-        end else if (audio_out_file == 0) begin
-            $fatal(1, "Error: Failed to open file %s", audio_out_file_name);
-        end else begin
+        // audio_in_file =  $fopen(audio_in_file_name,  "rb");
+        // audio_out_file = $fopen(audio_out_file_name, "wb");
+        // if (audio_in_file == 0) begin
+        //     $fatal(1, "Error: Failed to open file %s", audio_in_file_name);
+        // end else if (audio_out_file == 0) begin
+        //     $fatal(1, "Error: Failed to open file %s", audio_out_file_name);
+        // end else begin
 
-            // Read header
-            $fread(wav_header, audio_in_file);
+        //     // Read header
+        //     $fread(wav_header, audio_in_file);
 
-            // Write header
-            for(int i = 0; i < 44; i++) begin
-                $fwrite(audio_out_file, "%c", wav_header[i]);
-            end
+        //     // Write header
+        //     for(int i = 0; i < 44; i++) begin
+        //         $fwrite(audio_out_file, "%c", wav_header[i]);
+        //     end
 
-            num_samples = 0;
-            while (!$feof(audio_in_file)) begin
-                logic [7:0] lsb, msb;
-                lsb = $fgetc(audio_in_file);
-                msb = $fgetc(audio_in_file);
-                //$display("LSB: 0x%h\nMSB: 0x%h", lsb, msb);
-                if($feof(audio_in_file)) break;
+        //     num_samples = 0;
+        //     while (!$feof(audio_in_file)) begin
+        //         logic [7:0] lsb, msb;
+        //         lsb = $fgetc(audio_in_file);
+        //         msb = $fgetc(audio_in_file);
+        //         //$display("LSB: 0x%h\nMSB: 0x%h", lsb, msb);
+        //         if($feof(audio_in_file)) break;
 
-                in_sample = {msb, lsb};
-                //$display("in_sample: 0x%h", in_sample);
-                num_samples++;
+        //         in_sample = {msb, lsb};
+        //         //$display("in_sample: 0x%h", in_sample);
+        //         num_samples++;
 
-                // Apply sample to audio interface
-                jtag_write_reg32(user_pkg::UserAuAudioInterfaceAddrOffset, in_sample, 1'b0, 0);
+        //         // Apply sample to audio interface
+        //         jtag_write_reg32(user_pkg::UserAuAudioInterfaceAddrOffset, in_sample, 1'b0, 0);
 
-                // Read output from audio interface
-                jtag_read_reg32(user_pkg::UserAuAudioInterfaceAddrOffset + 4, out_sample, 0);
+        //         // Read output from audio interface
+        //         jtag_read_reg32(user_pkg::UserAuAudioInterfaceAddrOffset + 4, out_sample, 0);
                 
-                // Write output
-                $fwrite(audio_out_file, "%c%c", out_sample[7:0], out_sample[15:8]);
-            end
+        //         // Write output
+        //         $fwrite(audio_out_file, "%c%c", out_sample[7:0], out_sample[15:8]);
+        //     end
 
-            $fclose(audio_in_file);
-            $fclose(audio_out_file);
-            $display("Processed %d samples", num_samples);
+        //     $fclose(audio_in_file);
+        //     $fclose(audio_out_file);
+        //     $display("Processed %d samples", num_samples);
 
-            //jtag_read_reg32(user_pkg::UserAuFiltersCascadeAddrOffset + 4, LPF_filter_decay, 0);
-            //jtag_read_reg32(user_pkg::UserAuFiltersCascadeAddrOffset + 8, HPF_filter_decay, 0);
-            //$display("LPF decay was: %d\nHPF decay was: %d", LPF_filter_decay, HPF_filter_decay);
+        //     //jtag_read_reg32(user_pkg::UserAuFiltersCascadeAddrOffset + 4, LPF_filter_decay, 0);
+        //     //jtag_read_reg32(user_pkg::UserAuFiltersCascadeAddrOffset + 8, HPF_filter_decay, 0);
+        //     //$display("LPF decay was: %d\nHPF decay was: %d", LPF_filter_decay, HPF_filter_decay);
 
-            $display("In file name: %s", audio_in_file_name);
-            $display("Out file name: %s", audio_out_file_name);
-        end
+        //     $display("In file name: %s", audio_in_file_name);
+        //     $display("Out file name: %s", audio_out_file_name);
+        // end
 
         // finish simulation
         repeat(50) @(posedge clk);

@@ -75,10 +75,12 @@ module user_au_audio_interface #(
     data_o_to_fx_d = data_o_to_fx_q;
     data_i_from_fx_d = data_i_from_fx_q;
 
+    // If we have valid data and fx module is ready to receive it - assume it's sent
     if(valid_o_to_fx_q & ready_i) begin
       valid_o_to_fx_d = 0;
       data_o_to_fx_d = '0;
     end
+
     if(valid_i) begin
       data_i_from_fx_d = data_i;
     end

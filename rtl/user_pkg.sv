@@ -29,7 +29,6 @@ package user_pkg;
   localparam bit [31:0] UserAuFiltersCascadeAddrOffset  = 32'h2000_1000;
   localparam bit [31:0] UserAuFiltersCascadeAddrRange   = 32'h0000_1000;    // 4KB
 
-  // Only for testing
   localparam bit [31:0] UserAuAudioInterfaceAddrOffset  = 32'h3000_1000;
   localparam bit [31:0] UserAuAudioInterfaceAddrRange   = 32'h0000_1000;    // 4KB
 
