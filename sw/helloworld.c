@@ -12,9 +12,9 @@
 #include "util.h"
 #include "my_helpers.h"
 
-// 0 - LPF cutoff, 0-1024
-// 1 - HPF cutoff, 0-1024
-int encoders [2] = {512, 100};
+// 0 - LPF cutoff, {0-1024}
+// 1 - HPF cutoff, 2048 - {0-1024}
+int encoders [2] = {512, 2048-100};
 
 void update_encoders() {
 
@@ -48,8 +48,8 @@ void update_encoders() {
     }
 
     // write encoder values to effects
-    *reg32(USER_AU_FILTERS_CASCADE_BASE_ADDR, 0x4) = encoders[0];
-    *reg32(USER_AU_FILTERS_CASCADE_BASE_ADDR, 0x8) = encoders[1];
+    *reg32(USER_AU_LPF_CASCADE_BASE_ADDR, 0x4) = encoders[0];
+    *reg32(USER_AU_HPF_CASCADE_BASE_ADDR, 0x4) = encoders[1]; // REMEMBER ABOUT 2048!!!
 }
 
 int main() {
@@ -64,29 +64,34 @@ int main() {
     gpio_init();
 
     // main loop
-    //for(int i = 0; i < 10; i++) {
-    while(1) {
+    // while(1) {
 
-        // if ADC has NOT asserted DRDY
-        while(adc_ready() == 0) {
+    //     // if ADC has NOT asserted DRDY
+    //     while(adc_ready() == 0) {
 
-            // update encoder values from uart
-            update_encoders();
-        }
+    //         // update encoder values from uart
+    //         update_encoders();
+    //     }
 
-        // ADC is ready - process new sample
+    //     // ADC is ready - process new sample
 
-        // push data from ADC to audio interface
-        *reg32(USER_AU_AUDIO_INTERFACE_BASE_ADDR, 0x0) = spi_read_16();
+    //     // push data from ADC to audio interface
+    //     *reg32(USER_AU_AUDIO_INTERFACE_BASE_ADDR, 0x0) = spi_read_16();
 
-        // wait for processing
-        delay_short();
-        delay_short();
-        delay_short();
+    //     // wait for processing
+    //     delay_short();
+    //     delay_short();
+    //     delay_short();
 
-        // send processed data to DAC
-        spi_send_16(*reg32(USER_AU_AUDIO_INTERFACE_BASE_ADDR, 0x4));
-    }
+    //     // send processed data to DAC
+    //     spi_send_16(*reg32(USER_AU_AUDIO_INTERFACE_BASE_ADDR, 0x4));
+    // }
+
+    // ----- DEBUG ----- 
+    *reg32(USER_AU_LPF_CASCADE_BASE_ADDR, 0x4) = encoders[0];
+    *reg32(USER_AU_HPF_CASCADE_BASE_ADDR, 0x4) = encoders[1]; // REMEMBER ABOUT 2048!!!
+
+    // -----------------
 
     uart_write_flush();
 

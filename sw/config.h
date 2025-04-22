@@ -12,7 +12,8 @@
 #define UART_BASE_ADDR                      0x03002000
 #define GPIO_BASE_ADDR                      0x03005000
 #define TIMER_BASE_ADDR                     0x0300A000
-#define USER_AU_FILTERS_CASCADE_BASE_ADDR   0x20001000
+#define USER_AU_LPF_CASCADE_BASE_ADDR       0x20001000
+#define USER_AU_HPF_CASCADE_BASE_ADDR       0x20002000
 #define USER_AU_AUDIO_INTERFACE_BASE_ADDR   0x30001000
 
 // Frequencies
