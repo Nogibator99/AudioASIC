@@ -12,6 +12,6 @@
 
 void delay_short();
 void gpio_init();
-void wait_for_adc_ready();
+uint8_t adc_ready();
 uint16_t spi_read_16();
 void spi_send_16(uint16_t data);

@@ -36,8 +36,8 @@ void gpio_init() {
     gpio_pin_enable(DRDY_PIN);
 }
 
-void wait_for_adc_ready() {
-    while (gpio_pin_read(DRDY_PIN) == 0);  // wait for DRDY to go high
+uint8_t adc_ready() {
+    return gpio_pin_read(DRDY_PIN);  // wait for DRDY to go high
 }
 
 uint16_t spi_read_16() {
