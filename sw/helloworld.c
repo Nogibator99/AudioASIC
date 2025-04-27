@@ -14,7 +14,7 @@
 
 // 0 - LPF cutoff, {0-1024}
 // 1 - HPF cutoff, 2048 - {0-1024}
-int encoders [2] = {512, 2048-100};
+int encoders [2] = {500, 2048-20};
 
 void update_encoders() {
 
@@ -63,29 +63,29 @@ int main() {
     // Configure GPIO
     gpio_init();
 
-    // main loop
-    // while(1) {
+    // main infinite loop
+    while(1) {
 
-    //     // if ADC has NOT asserted DRDY
-    //     while(adc_ready() == 0) {
+        // if ADC has NOT asserted DRDY
+        while(adc_ready() == 0) {
 
-    //         // update encoder values from uart
-    //         update_encoders();
-    //     }
+            // update encoder values from uart
+            update_encoders();
+        }
 
-    //     // ADC is ready - process new sample
+        // ADC is ready - process new sample
 
-    //     // push data from ADC to audio interface
-    //     *reg32(USER_AU_AUDIO_INTERFACE_BASE_ADDR, 0x0) = spi_read_16();
+        // push data from ADC to audio interface
+        *reg32(USER_AU_AUDIO_INTERFACE_BASE_ADDR, 0x0) = spi_read_16();
 
-    //     // wait for processing
-    //     delay_short();
-    //     delay_short();
-    //     delay_short();
+        // wait for processing
+        delay_short();
+        delay_short();
+        delay_short();
 
-    //     // send processed data to DAC
-    //     spi_send_16(*reg32(USER_AU_AUDIO_INTERFACE_BASE_ADDR, 0x4));
-    // }
+        // send processed data to DAC
+        spi_send_16(*reg32(USER_AU_AUDIO_INTERFACE_BASE_ADDR, 0x4));
+    }
 
     // ----- DEBUG ----- 
     *reg32(USER_AU_LPF_CASCADE_BASE_ADDR, 0x4) = encoders[0];

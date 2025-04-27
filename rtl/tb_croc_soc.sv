@@ -512,11 +512,9 @@ module tb_croc_soc #(
                 logic [7:0] lsb, msb;
                 lsb = $fgetc(audio_in_file);
                 msb = $fgetc(audio_in_file);
-                //$display("LSB: 0x%h\nMSB: 0x%h", lsb, msb);
                 if($feof(audio_in_file)) break;
 
                 in_sample = {msb, lsb};
-                //$display("in_sample: 0x%h", in_sample);
                 num_samples++;
 
                 // Apply sample to audio interface
@@ -533,9 +531,9 @@ module tb_croc_soc #(
             $fclose(audio_out_file);
             $display("Processed %d samples", num_samples);
 
-            //jtag_read_reg32(user_pkg::UserAuFiltersCascadeAddrOffset + 4, LPF_filter_decay, 0);
-            //jtag_read_reg32(user_pkg::UserAuFiltersCascadeAddrOffset + 8, HPF_filter_decay, 0);
-            //$display("LPF decay was: %d\nHPF decay was: %d", LPF_filter_decay, HPF_filter_decay);
+            jtag_read_reg32(user_pkg::UserAuLPFCascadeAddrOffset + 4, LPF_filter_decay, 0);
+            jtag_read_reg32(user_pkg::UserAuHPFCascadeAddrOffset + 4, HPF_filter_decay, 0);
+            $display("LPF decay was: %d\nHPF decay was: %d", LPF_filter_decay, HPF_filter_decay);
 
             $display("In file name: %s", audio_in_file_name);
             $display("Out file name: %s", audio_out_file_name);
